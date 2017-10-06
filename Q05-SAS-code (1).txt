@@ -1,0 +1,27 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q05_Pair_T_Test.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.Power;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Power; RUN;
+
+/* delete unwanted row*/
+data Power_1;
+set Power;
+if Q3_Consumption =.  then delete;
+run;
+
+/* deseasonalize the consumption values */
+data power_1;
+set power_1;
+Q3_1= Q3_Consumption / 1.2;
+Q4_1= Q4_consumption / 0.9;
+run;
+
+/* running t test */
+proc ttest data=power_1;
+paired Q3_1*Q4_1 ;
+run;

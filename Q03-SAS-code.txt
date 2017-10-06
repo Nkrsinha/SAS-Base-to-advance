@@ -1,0 +1,70 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q03_data.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.Hlth;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Hlth; RUN;
+
+/* Please note that data has been read correctly in SAS
+Even after having * in the data, SAS read it correctly and
+put missing value for the * */
+
+/* For some strange reason, it is capturing a blank
+row */
+
+/* let's get rid of missing values 
+first for the air weight and water weight only 
+
+note SAS is not case sensitive */
+data Hlth_1;
+set hlth;
+if air_weight=. then delete;
+if water_weight=. then delete;
+run;
+
+/* let's discover linear relationship between air weight
+and water weight */
+proc reg data=Hlth_1 plot ;
+model air_weight = water_weight;
+run;
+
+/* let' see if we add two additional variable like gender and 
+body fat as predictor what happens 
+We will also have to do treatment of these two variables
+*/
+data Hlth_2;
+set Hlth_1;
+if gender=. or body_fat =. then delete;
+run;
+
+proc reg data=Hlth_2 plot ;
+model air_weight = water_weight  body_fat gender ;
+run;
+
+/* For non technical explanation */
+proc means data=Hlth_2 P20 P40 P60 P80;
+var air_weight;
+run;
+
+/* crate air weight group variable */
+data Hlth_3;
+set Hlth_2;
+length air_weight_gp $2. ;
+if air_weight <= 57.10 then air_weight_gp ="01";
+else if air_weight <= 63.00 then air_weight_gp ="02";  
+else if air_weight <= 71.00 then air_weight_gp ="03";
+else if air_weight <= 78.00 then air_weight_gp ="04"; 
+else air_weight_gp ="05"; 
+run;
+
+/* get group wise means of water weight */
+proc means data=Hlth_3 mean;
+var water_weight;
+class air_weight_gp;
+run;
+
+
+

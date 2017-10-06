@@ -1,0 +1,69 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q01_List_A.csv" TERMSTR=CR;
+
+/*
+TERMSTR= option specifies the end-of-line character for the specified file. 
+Use this option to read files created
+ on UNIX in a SAS session on Windows, and vice versa. */
+ 
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.List_A;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.List_A; RUN;
+
+data chk;
+set list_A;
+run;
+
+
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q01_List_B.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.List_B;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.List_B; RUN;
+
+data List_A_1;
+set List_A;
+length Up_EmailID $32. ;
+Up_EmailID=upcase(Email_IDs  );
+A_Indicator=1;
+run;
+
+proc contents data=list_a_1;
+run;
+
+
+data List_B_1;
+set List_B;
+length Up_EmailID $32. ;
+Up_EmailID=upcase(Email_IDs  );
+run;
+
+proc contents data=list_b_1;
+run;
+
+
+
+
+proc sort data=list_a_1;
+by Up_EmailID;
+
+run;
+
+proc sort data=list_b_1;
+by Up_EmailID;
+run;
+
+data List_B_only;
+merge List_A_1 (in=a) List_B_1 (in=b);
+
+by Up_EmailID;
+if not a and b;
+run;
+

@@ -1,0 +1,38 @@
+
+/* read the csv file */
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q06_accd.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.accd
+	REPLACE;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.accd; RUN;
+
+data accd_1;
+set accd (keep= age red_car);
+run;
+
+data accd_1;
+set accd_1;
+if age=. then delete;
+run;
+
+data accd_2;
+set accd_1;
+length age_gp $10.;
+if age <= 35 then age_gp="01_Low-35";
+else if age <= 48 then age_gp="02_36-48";
+else age_gp="03_49-high";
+run;
+
+proc freq data=accd_2;
+table age_gp*red_car / chisq ;
+run;
+
+
+
+
+

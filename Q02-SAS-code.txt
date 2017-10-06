@@ -1,0 +1,68 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Birthday.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.Ins;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Ins; RUN;
+
+/* Delete unwanted row */
+data Ins_1;
+set Ins;
+if no_of_births_1 =.  then delete;
+run;
+
+/* Extract month from date */
+data Ins_1;
+set Ins_1;
+length Month_1 $2.;
+chk=index(trim(date_1),'/');
+Month_1=trim(substr(trim(date_1), 2, index(trim(date_1),'/') -2));
+run;
+
+
+/* Check month value */
+proc freq data=Ins_1;
+table Month_1;
+run;
+
+
+/* We will like to have 1, 2, 3 .... 11, 12
+For that reason let's put 0 for values other than
+10, 11, 12 */
+
+data Ins_2;
+set Ins_1;
+length Month_2 $2. ;
+if Month_1 in( "10" , "11" , "12") then Month_2=Month_1;
+else Month_2=compress("0" || trim(Month_1)) ;
+run;
+
+
+/* Check the order now*/
+proc freq data=Ins_2;
+table Month_2;
+run;
+
+/* Check contents of the final file*/
+proc contents data=ins_2;
+run;
+
+/* Find number of people for each month*/
+proc means data=Ins_2 sum ;
+var no_of_births_1 ;
+class Month_2;
+output out=A;
+run;
+
+
+
+
+/* making bar chart */
+
+
+proc gchart data=Ins_2;
+vbar Month_2/ sumvar=no_of_births_1 ;
+run;

@@ -1,0 +1,24 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q04_Wholesale customers data.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.sales;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.sales; RUN;
+
+/* Delete unwanted row */
+data sales_1;
+set sales;
+if Milk =.  then delete;
+run;
+
+/* proc means - will give every thing - sum, max, std deviation for selected variables
+   proc tabulate is the best option in this situation */
+
+proc tabulate data=sales_1;
+var Milk Grocery;
+class region channel;
+table region*channel , mean*milk max*milk mean*grocery std*grocery;
+run;
