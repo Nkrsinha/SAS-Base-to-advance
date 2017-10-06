@@ -1,0 +1,66 @@
+FILENAME browse1 "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q10_Agent_Data.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=browse1
+	DBMS=CSV
+	OUT=WORK.Sales_Data
+	replace;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Sales_Data; RUN;
+
+data sales_1;
+set sales_data;
+/*
+lengthy way
+max_Fig=Jan_15;
+max_month="Jan_15";
+
+if Feb_15 > max_Fig then do;
+ max_fig=Feb_15;
+ moax_month="Feb_15";
+ end;
+ if Mar_15 > max_Fig then do;
+ max_fig=Mar_15;
+ max_month="Mar_15";
+
+smart way - using array
+ */
+ 
+array sales(14) Jan_15  Feb_15  Mar_15  Apr_15  May_15  Jun_15  Jul_15  Aug_15
+  Sep_15  Oct_15  Nov_15  Dec_15  Jan_16  Feb_16 ;
+
+array month_nm(14) $10. ('Jan_15'  'Feb_15'  'Mar_15'  'Apr_15'  'May_15' 
+ 'Jun_15' 'Jul_15'  'Aug_15'  'Sep_15' 'Oct_15' 'Nov_15' 'Dec_15' 'Jan_16' 'Feb_16');
+ 
+max_fig =Jan_15;
+max_month='Jan_15';
+
+min_fig=Jan_15;
+min_month='Jan_15';
+
+do i=2 to 14;
+  if sales(i) > max_fig then do;
+  max_fig=sales(i);
+  max_month=month_nm(i);
+  end;
+  if sales(i) < min_fig then do;
+  min_fig=sales(i);
+  min_month=month_nm(i);
+  end;  
+  
+end;
+
+length message_text $140.;
+message_text= compress ("Dear" || " " || name || " ,") || 
+" For you best month was -" || " " || compress(max_month) ||
+" Fig(" || max_fig || ") & worst month was -"
+|| " " || compress(min_month) ||
+" Fig(" || min_fig || ")" ;
+ run;
+ 
+ proc print data=sales_1;
+ var message_text;
+ run;
+ 
+ 

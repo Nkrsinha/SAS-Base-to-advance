@@ -1,0 +1,803 @@
+# SAS-Base-to-advance
+
+/*
+1. Check the option to create new code
+2. Import query
+3. How to import files
+3A. Note - you may not use the import file directly
+3B. You need to first upload the file to server
+*/
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/Basic_SAS_programming/Marks.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.Marks;
+	GETNAMES=YES;
+RUN;
+
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/Basic_SAS_programming/Student_details.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.Student;
+	GETNAMES=YES;
+RUN;
+
+/* Check the contents of the file*/
+proc contents data= Student;
+run;
+/* It shows following important aspects of the data
+1. # of observations
+2. # of variables
+3. Sorting order in the data
+4. File permission
+5. Alphabetical list of variables, it's type, length and level (if any)
+*/
+
+/* Priniting few records.
+Please note you can tell SAS to 
+1. start from a particular observation by using firstobs
+2. go till observation number by using obs
+3. print few columns only by using column name as var statement
+4. print all columns by not putting var statement
+5. print all records by no obs statement - but be careful
+*/
+
+proc print data=student ( firstobs=16 obs=20);
+var name;
+run;
+
+proc print data=student ;
+/* var name; */
+run;
+
+/* Getting directly into SAS */
+/* wrong way */
+/* Note 
+a. The name of output data
+b. the list of variables along with its format
+c. the command to let SAS know from where to start reading
+d. the colon to ask SAS to stop reading data
+*/
+
+
+data student;
+	input Roll_No Name Gender Height Weight;
+	cards;
+1  Alfred  M  69  112.5
+2  Alice  M  56.5  84
+3  Barbara  M  65.3  98
+4  Carol  M  62.8  102.5
+5  Henry  M  63.5  102.5
+6  James  M  57.3  83
+7  Jane  F  59.8  84.5
+8  Janet  M  62.5  112.5
+9  Jeffrey  M  62.5  84
+10  John  F  59  99.5
+11  Joyce  M  51.3  50.5
+12  Judy  F  64.3  90
+13  Louise  M  56.3  77
+14  Mary  M  66.5  112
+15  Philip  F  72  150
+16  Robert  M  64.8  128
+17  Ronald  M  67  133
+18  Thomas  F  57.5  85
+19  William  F  66.5  112
+20  Gopal  M  63.5  106
+;
+run;
+
+
+/* correct way - give format for all those variables which are non numeric */
+data student;
+	input Roll_No Name $ Gender $ Height Weight;
+	cards;
+1  Alfred  M  69  112.5
+2  Alice  M  56.5  84
+3  Barbara  M  65.3  98
+4  Carol  M  62.8  102.5
+5  Henry  M  63.5  102.5
+6  James  M  57.3  83
+7  Jane  F  59.8  84.5
+8  Janet  M  62.5  112.5
+9  Jeffrey  M  62.5  84
+10  John  F  59  99.5
+11  Joyce  M  51.3  50.5
+12  Judy  F  64.3  90
+13  Louise  M  56.3  77
+14  Mary  M  66.5  112
+15  Philip  F  72  150
+16  Robert  M  64.8  128
+17  Ronald  M  67  133
+18  Thomas  F  57.5  85
+19  William  F  66.5  112
+20  Gopal  M  63.5  106
+;
+run;
+
+proc contents data=student;
+run;
+
+
+data marks;
+input Roll_No  Phy_SCR  Math_SCR  Chem_SCR  Lang_SCR;
+cards;
+1  96  22  67  36
+2  61  62  21  83
+3  56  22  29  47
+4  79  55  31  71
+5  21  52  34  82
+6  38  46  67  98
+7  85  21  69  45
+8  94  39  27  43
+9  83  69  52  59
+10  60  28  90  39
+11  39  50  98  51
+12  37  57  56  94
+13  20  97  59  94
+14  76  56  98  28
+15  44  56  22  36
+16  40  66  31  60
+17  53  55  36  70
+18  90  94  77  61
+19  66  60  20  47
+20  56  64  52  23
+;
+run;
+
+
+/* Frequency distribution - for categorical variable */
+proc freq data=student;
+table gender;
+run;
+
+proc freq data=student order=freq;
+table gender;
+run;
+
+
+/* Storing frequency distribution output as table */
+proc freq data=student;
+table gender / out=a;
+run;
+
+/* should you do frequency distribution of numeric data */
+proc freq data=student;
+table height;
+run;
+
+/* let's do numeric variable analysis 
+Note - plot option gives you plot of variables
+if you miss var statement, it will produce analysis for all the variables */
+
+proc univariate data=student plot;
+var height weight;
+run;
+
+proc means data=student ;
+var height weight;
+run;
+
+proc means data=student n nmiss mean max median p25 p75 p99 ;
+var height weight;
+run;
+
+/* Sorting ascending*/
+Data attend;
+input roll_no subject_1 $ marks;
+cards;
+1 PHY 25
+1 CHEM 75
+1 MATH 45
+2 PHY 55
+2 CHEM 49
+2 MATH 40
+;
+run;
+
+
+proc print data=attend;
+run;
+
+/* Marks in ascending order for each roll_no */
+proc sort data=attend out=attend1;
+by roll_no marks;
+run;
+
+proc print data=attend1;
+run;
+
+
+
+/* Sorting descending */
+/* Marks in ascending order for each roll_no 
+Note descending has to come prior to the variable name*/
+proc sort data=attend out=attend1;
+by roll_no  descending marks  ;
+run;
+
+proc print data=attend1;
+run;
+
+/* Removing duplicate 
+Let's say we want to get list of unique roll_nos*/
+proc sort data=attend (keep = roll_no) out=roll_list nodupkey;
+by roll_no;
+run;
+
+proc print data=roll_list;
+run;
+
+/* Keeping the first entry - find best score for each roll no*/
+proc sort data=attend out=attend1;
+by roll_no  descending marks  ;
+run;
+
+proc print data=attend1;
+run;
+
+data attend2;
+set attend1;
+if first.roll_no=1;
+by roll_no;
+run;
+
+proc print data=attend2;
+run;
+
+/* Keeping the last enrty - find least score for each roll no*/
+data attend2;
+set attend1;
+if last.roll_no=1;
+by roll_no;
+run;
+
+proc print data=attend2;
+run;
+
+/* Merging dataset 
+1. First sort
+2. The use options to for right join, left join or equijoin */
+proc sort data=student out=student1;
+by Roll_No;
+run;
+
+/* check the sorting order*/
+proc contents data=student1;
+run;
+
+proc sort data=marks out=marks1;
+by Roll_No;
+run;
+
+/* delete 1 row from student1 and 1 row from marks1 to show
+various options of join */
+data student2;
+set student1;
+if Roll_No =1 then delete;
+run;
+
+proc print data=student2;
+run;
+
+data marks2;
+set marks1;
+if Roll_No =12 then delete;
+run;
+proc print data=marks2;
+run;
+/* Left join */
+
+data stud_marks;
+merge student2 (in=a) marks2 (in=b);
+by Roll_No;
+if a;
+run;
+proc print data=stud_marks;
+run;
+
+/* Treating missing numeric value */
+data chk;
+set stud_marks;
+if phy_scr=. then phy_scr=0;
+run;
+proc print data=chk;
+run;
+
+/* right join */
+
+data stud_marks;
+merge student2 (in=a) marks2 (in=b);
+by Roll_No;
+/* if a; */
+if b;
+/* if a and b; */
+run;
+proc print data=stud_marks;
+run;
+/* Treating missing character value */
+data chk;
+set stud_marks;
+if gender=' ' then gender='M';
+run;
+proc print data=chk;
+run;
+
+/* Equi Join */
+
+data stud_marks;
+merge student2 (in=a) marks2 (in=b);
+by Roll_No;
+if a and b;
+run;
+proc print data=stud_marks;
+run;
+
+/* Note append is different than merge */
+data table_1;
+input sr_no name $;
+cards;
+1 Rick
+2 Martha
+;
+run;
+proc print data=table_1;
+run;
+data table_2;
+input sr_no name $;
+cards;
+3 Gopal
+4 Alex
+;
+run;
+proc print data=table_2;
+run;
+
+data table_1_n_2;
+set table_1 table_2;
+run;
+
+proc print data=table_1_n_2;
+run;
+
+/* note what happens if fields (columns) are not same in both the datasets */
+data table_1;
+input sr_no name $ gender $;
+cards;
+1 Rick M
+2 Martha F
+;
+run;
+proc print data=table_1;
+run;
+data table_2;
+input sr_no name $ height;
+cards;
+3 Gopal 122
+4 Alex 240
+;
+run;
+proc print data=table_2;
+run;
+
+data table_1_n_2;
+set table_1 table_2;
+run;
+
+proc print data=table_1_n_2;
+run;
+
+/* Derive new variables */
+/* Creating pass / fail indicator */
+data stud_marks_1;
+set stud_marks;
+if ((Phy_SCR <30) or (Chem_SCR <30) or 
+     (Math_SCR <30) or (Lang_SCR <30)) then Pass_Fail="Fail";
+else Pass_Fail="Pass";
+run;
+
+proc print data=stud_marks_1;
+var roll_no Phy_SCR Chem_SCR  Math_SCR Lang_SCR Pass_Fail;
+run;
+
+
+/* find how many passed and how many failed
+Also let's put bigger group (based on count) first */
+proc freq data=stud_marks_1 order=freq;
+table Pass_Fail ;
+run;
+
+/* let's develop grade for pass students.
+Note 
+1. do statement works like a bracket in case of ifelse command
+2. length helps to get proper fields details
+3. Conditions needs to be put in proper order
+*/
+/* Incorrect way */
+data stud_marks_2;
+set stud_marks_1;
+tot_marks=sum(Phy_SCR, Chem_SCR, Math_SCR, Lang_SCR);
+if Pass_Fail="Fail" then grade="Fail";
+else do;
+  if Tot_Marks>=320 then grade= "First_Class_with_Distinction";
+  else if Tot_Marks>=240 then grade="First_Class";
+  else if Tot_Marks>=180 then grade="Second_Class";
+  else if Tot_Marks>=120 then grade="Third_Class"; 
+  else grade="Error";
+end;
+run;
+
+proc print data=stud_marks_2;
+var roll_no Phy_SCR Chem_SCR  Math_SCR Lang_SCR Pass_Fail grade;
+run;
+
+
+/* Correct way */
+data stud_marks_2;
+set stud_marks_1;
+tot_marks=sum(Phy_SCR, Chem_SCR, Math_SCR, Lang_SCR);
+length grade $40 ;
+if Pass_Fail="Fail" then grade="Fail";
+else do;
+  if Tot_Marks>=320 then grade= "First_Class_with_Distinction";
+  else if Tot_Marks>=240 then grade="First_Class";
+  else if Tot_Marks>=180 then grade="Second_Class";
+  else if Tot_Marks>=120 then grade="Third_Class"; 
+  else grade="Error";
+end;
+run;
+
+proc print data=stud_marks_2;
+var roll_no Phy_SCR Chem_SCR  Math_SCR Lang_SCR Pass_Fail grade;
+run;
+
+/* Note Arithmetic and comparison operator--
+https://support.sas.com/documentation/cdl/en/lrcon/62955/HTML/default/viewer.htm#a000780367.htm
+http://blogs.sas.com/content/sastraining/2011/09/08/a-quick-tour-of-sas-operators/
+
+--*/
+
+data chk;
+set stud_marks_2;
+if Pass_Fail NE "Fail" or Tot_Marks>=180 ;
+run;
+proc print data=chk;
+var roll_no Phy_SCR Chem_SCR  Math_SCR Lang_SCR Tot_Marks Pass_Fail grade;
+run;
+
+data chk;
+set stud_marks_2;
+if Pass_Fail NE "Fail" and Tot_Marks>=240 ;
+run;
+proc print data=chk;
+var roll_no Phy_SCR Chem_SCR  Math_SCR Lang_SCR Tot_Marks Pass_Fail grade;
+run;
+
+/* Keeping few columns only in the data */
+data for_publish;
+set stud_marks_2 (keep= roll_no name grade tot_marks);
+run;
+
+/* dropping few columns */
+data for_publish_1;
+set for_publish (drop=  tot_marks);
+run;
+
+/* filtering data based on condition */
+proc freq data=stud_marks_2;
+table gender;
+run;
+
+data chk;
+set stud_marks_2;
+if gender ='M';
+run;
+
+/* removing data based on condition */
+data chk;
+set stud_marks_2;
+if gender ='M' then delete;
+run;
+
+  
+/* Example of substring 
+variable, start character and # of characters*/
+proc print data=stud_marks_2;
+var name;
+run;
+
+data stud_marks_3;
+set  stud_marks_2;
+name_start=substr(Name,1,1);
+sec_third=substr(Name,2,2);
+run;
+
+proc print data=stud_marks_3;
+var name name_start sec_third;
+run;
+
+
+/* check the values */
+proc freq data=stud_marks_3;
+table name_start;
+run;
+
+/* get to know in operator for string
+use that to filter base */
+data chk;
+set stud_marks_3;
+if name_start in ('J','B','P','R');
+run;
+
+/* cross tab using SAS*/
+proc freq data=stud_marks_3;
+table gender*name_start;
+run;
+proc freq data=stud_marks_3;
+table gender*name_start /norow nocol nopercent;
+run;
+
+
+/* analysis for each class */
+proc univariate data=student;
+class gender;
+var height weight;
+run;
+
+/* working with date fields 
+here we will read date like text*/
+data date_1;
+input name $ dob $;
+cards;
+Gopal 12011978
+Alex 01121985
+Stephi 15071992
+Joy 23101972
+Krish 15091986
+;
+run;
+
+/* get date values */
+data date_2;
+set date_1;
+format dob_1 date9. ;
+dob_1=dob;
+run;
+
+/* use mdy function along with substr */
+data date_2;
+set date_1;
+format dob_1 date9. ;
+dob_1=mdy (substr(dob,3,2),substr(dob,1,2),substr(dob,5,4) );
+run;
+
+proc print data=date_2;
+run;
+
+
+/* calculate age in years of each person as on 15 Sep 2015*/
+data date_3;
+set date_2;
+age_in_days=mdy (09,15,2015 ) - dob_1;
+age_in_years=round(age_in_days/365,1);
+run;
+proc print data=date_3;
+run;
+
+/* date is actually a number field inside */
+proc means data=date_3;
+run;
+
+
+
+/* proc sql - SQL under SAS envelop */
+proc sql ;
+create table a as 
+select name_start, name, gender from stud_marks_3;
+quit;
+
+
+/* Proc SQL - very handy to put summarized report
+compare it against univariate */
+proc sql ;
+select gender, avg(height) as avg_height ,
+avg(weight) as avg_weight
+from student
+group by gender
+order by gender;
+quit;
+
+/* proc sql helps to fetch data directly from database*/
+/* An example from 
+http://blogs.sas.com/content/sasdummy/2012/05/18/using-proc-sql-to-get-the-schema-of-a-mysql-database/
+the below code is an example 
+---Please do not run it--- */
+
+%let database=dbname; /* name of the MySQL database */
+%let server = mysql.host.domain.com; /* your MySQL node */
+ 
+proc sql;
+  connect to mysql as source 
+    (
+    DATABASE=&database 
+    SERVER=&server 
+    PORT=3306 /* default port, change if needed */
+    USER=your_user_id
+    PASSWORD=secretPW
+    );
+  create table work.schematables as 
+    select * from connection to source 
+    (select * from 
+      information_schema.tables 
+    where table_schema="&database");
+ 
+  create table work.schemacolumns as 
+    select * from connection to source 
+    (select * from 
+      information_schema.columns 
+    where table_schema="&database");
+  disconnect from source;
+ 
+quit;
+
+
+/* Some statistical procedure in SAS */
+/* Linear Regression with plots 
+Note - Intercept, coefficient of determination, regression coefficients
+residual plot etc.
+Derving equation from the output
+*/
+proc reg data=student plots;
+model weight=height ;
+run;
+
+/* chi square */
+proc contents data=sashelp.cars;
+run;
+proc print data=sashelp.cars (obs=10);
+run;
+
+proc freq data=sashelp.cars;
+table cylinders origin;
+run;
+
+/* Understand 
+a. Degree of freedom
+b. Chi square calculation meaning
+c. p-value below */
+
+proc freq data=sashelp.cars ;
+   tables cylinders*origin / nocol norow nopercent  chisq; 
+   where cylinders = 4  or cylinders = 6 or cylinders = 8;           
+run;
+
+
+/* One way Anova*/
+proc anova data=sashelp.cars;
+class cylinders;
+model MPG_Highway= cylinders;
+where cylinders = 4  or cylinders = 6 or cylinders = 8; 
+run;
+
+/* Introduction to SAS graphs */
+/* Good link on graphics 
+https://support.sas.com/rnd/datavisualization/papers/GraphBasics.pdf
+*/
+
+/* Creating Vertical Bar Chart  */
+proc gchart data=student;
+vbar height / type=percent;
+run;
+
+/* Creating horizonal Bar Chart  */
+proc gchart data=student;
+hbar height / type=sum;
+run;
+
+/* Creating pie chart */
+proc gchart data=student;
+pie gender / type=sum;
+run;
+
+/* Creating subgroups within bar*/
+/* Very useful for seeing binary response variable */
+/* Also understand the difference between gchart and chart*/
+proc chart data=student;
+var height / type=percent
+subgroup= gender;
+run;
+ 
+proc gchart data=student;
+var height / type=percent
+subgroup= gender;
+run; 
+
+/* Playing with title and label */
+title1 "This is title 1 ...for print ";
+title2 "Now title 2 *** for print";
+proc print data=student;
+run;
+
+/* Some systems - title becomes global but not here */
+proc gchart data=student;
+var height / type=percent
+subgroup= gender;
+run; 
+
+title1 "This is title 1 ...for graph ";
+title2 "Now title 2 *** for graph";
+proc gchart data=student;
+var height / type=percent
+subgroup= gender;
+run; 
+
+title1 "This is title 1 ...for pie ";
+title2 "Now title 2 *** for pie";
+
+proc gchart data=student;
+label Gender='M: Male, F: Female'; 
+vbar gender / type=sum;
+run;
+
+/* Making separate chart for each group */
+proc sort data=student ;
+by gender;
+run;
+
+proc gchart data=student;
+vbar height / type=sum;
+by gender;
+run;
+
+
+/* Proc tabulate - the pivot table in SAS */
+
+/* Let's create some categorical fields*/
+proc univariate data=stud_marks_2;
+var tot_marks height;
+run;
+
+data stud_01;
+set stud_marks_2 (keep= height weight gender tot_marks) ;
+length height_1 $12.;
+if height < 55 then height_1 ="GP_01_LT55";
+else if height < 60 then height_1 ="GP_02_55_60";
+else if height < 65 then height_1 ="GP_03_60_65";
+else if height < 70 then height_1 ="GP_04_65_70";
+else  height_1 ="GP_05_MT_70";
+
+if tot_marks <=220 then tot_marks_gp="01_LE_220";
+else tot_marks_gp="02_MT_220";
+cnt=1;
+
+run;
+
+proc tabulate data=stud_01;
+class height_1;
+var weight;
+table height_1*sum*weight;
+run;
+
+proc tabulate data=stud_01;
+class height_1;
+var weight;
+table height_1*mean*weight height_1*max*weight;
+run;
+
+proc tabulate data=stud_01;
+class gender height_1;
+var weight;
+table gender, height_1*sum*weight;
+run; 
+
+proc tabulate data=stud_01;
+class gender height_1;
+var weight cnt;
+table gender all, height_1*sum*weight height_1*sum*cnt height_1*N;
+run; 
+
+proc tabulate data=stud_01;
+class tot_marks_gp gender height_1;
+var weight cnt;
+table tot_marks_gp all, gender all, height_1*sum*weight height_1*sum*cnt ;
+run;

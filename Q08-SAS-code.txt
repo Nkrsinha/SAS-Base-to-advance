@@ -1,0 +1,46 @@
+FILENAME REFFILE "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q08_DoB_n_Gender.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=CSV
+	OUT=WORK.DoB_Data
+	replace;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.DoB_Data; RUN;
+
+
+/* see the error message */
+data DoB_1;
+set DoB_Data;
+format Day_of_DoB_1 2.;
+Day_of_DoB_1 = 1*Day_of_DoB;
+DoB_date=mdy(Month_of_DoB, Day_of_DoB_1,Year_of_DoB);
+Ref_date=mdy(03,31,2015);
+age_in_days=Ref_date- DoB_date;
+age_in_years=floor(age_in_days/ 365);
+run;
+
+/* with error handling */
+data DoB_1;
+set DoB_Data;
+format Day_of_DoB_1 2.;
+Day_of_DoB_1 = 1*substr(Day_of_DoB,2,2);
+DoB_date=mdy(Month_of_DoB, Day_of_DoB_1,Year_of_DoB);
+Ref_date=mdy(03,31,2015);
+age_in_days=Ref_date- DoB_date;
+age_in_years=floor(age_in_days/ 365);
+run;
+
+/* bi variate plot */
+proc gchart data=DoB_1;
+vbar age_in_years / 
+subgroup= gender;
+run; 
+
+/* to understand the chart */
+Proc freq data=dob_1;
+table age_in_years*gender / norow nocol nopercent;
+run;
+
+

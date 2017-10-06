@@ -1,0 +1,37 @@
+FILENAME browse1 "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q09_Browse_Data.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=browse1
+	DBMS=CSV
+	OUT=WORK.Browse_Data
+	replace;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Browse_Data; RUN;
+
+FILENAME cust1 "/home/nishantdatascien0/sasuser.v94/SAS_Practice/Q09_Customer_Data.csv" TERMSTR=CR;
+
+PROC IMPORT DATAFILE=cust1
+	DBMS=CSV
+	OUT=WORK.Customer_Data
+	replace;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Customer_Data; RUN;
+
+Proc SQL;
+Create table a as
+SELECT a.Customer_ID, COUNT(a.Duration_of_Visit) as times_visisted, 
+SUM(a.Duration_of_Visit) as Total_view_in_seconds
+FROM browse_data as a join customer_data as b
+on a.Customer_ID=b.Customer_ID
+where b.Age between 30 and 35
+GROUP BY a.Customer_ID
+HAVING COUNT(a.Duration_of_Visit) > 1 and
+MAX(a.Duration_of_Visit) >=180
+ORDER BY a.Customer_ID
+;
+quit;
+
+
